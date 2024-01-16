@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Animated, View } from 'react-native';
+import { Animated, View, StyleSheet } from 'react-native';
 import { Svg, Path, G } from 'react-native-svg';
 
 export default class CircularProgress extends React.PureComponent {
