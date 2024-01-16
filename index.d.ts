@@ -137,6 +137,14 @@ declare module 'react-native-circular-progress' {
     tintTransparency?: boolean;
 
     /**
+     * Color of the shadow
+     *
+     * @type {string}
+     * @default 'transparent'
+     */
+    shadowColor?: string;
+
+    /**
      * If unspecified, no background line will be rendered
      *
      * @type {string}
