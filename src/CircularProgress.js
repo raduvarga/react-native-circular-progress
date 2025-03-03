@@ -30,6 +30,7 @@ export default class CircularProgress extends React.PureComponent {
       tintColor,
       tintTransparency,
       shadowColor,
+      shadowRadius,
       backgroundColor,
       style,
       rotation,
@@ -101,7 +102,7 @@ export default class CircularProgress extends React.PureComponent {
 
     return (
       <View style={style}>
-        <Svg style={styles(shadowColor).shadow} width={size + padding} height={size + padding}>
+        <Svg style={styles(shadowColor, shadowRadius).shadow} width={size + padding} height={size + padding}>
           <G rotation={rotation} originX={(size + padding) / 2} originY={(size + padding) / 2}>
             {backgroundColor && (
               <Path
@@ -166,11 +167,11 @@ CircularProgress.defaultProps = {
   dashedTint: { width: 0, gap: 0 },
 };
 
-const styles = (shadowColor) => StyleSheet.create({
+const styles = (shadowColor, shadowRadius) => StyleSheet.create({
   shadow: {
     shadowOffset: {width: 0, height: 0},
     shadowColor: shadowColor,
     shadowOpacity: 0.5,
-    shadowRadius: 4,
+    shadowRadius: shadowRadius,
   },
 });
