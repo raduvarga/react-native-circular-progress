@@ -145,6 +145,14 @@ declare module 'react-native-circular-progress' {
     shadowColor?: string;
 
     /**
+     * Radius of the shadow
+     *
+     * @type {number}
+     * @default '0'
+     */
+    shadowRadius?: number;
+
+    /**
      * If unspecified, no background line will be rendered
      *
      * @type {string}
