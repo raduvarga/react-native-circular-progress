@@ -100,10 +100,11 @@ export default class CircularProgress extends React.PureComponent {
       .map(value => parseInt(value))
       : null;
 
+    let svgSize = Math.ceil(size + padding)
     return (
       <View style={style}>
-        <Svg style={styles(shadowColor, shadowRadius).shadow} width={size + padding} height={size + padding}>
-          <G rotation={rotation} originX={(size + padding) / 2} originY={(size + padding) / 2}>
+        <Svg style={styles(shadowColor, shadowRadius).shadow} width={svgSize} height={svgSize}>
+          <G rotation={rotation} originX={(svgSize) / 2} originY={(svgSize) / 2}>
             {backgroundColor && (
               <Path
                 d={backgroundPath}
