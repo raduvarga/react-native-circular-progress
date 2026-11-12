@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Animated, View, StyleSheet } from 'react-native';
-import { Svg, Path, G } from 'react-native-svg';
+import { Svg, Path, G, Defs, Filter, FeGaussianBlur } from 'react-native-svg';
 
 export default class CircularProgress extends React.PureComponent {
   polarToCartesian(centerX, centerY, radius, angleInDegrees) {
@@ -101,20 +101,55 @@ export default class CircularProgress extends React.PureComponent {
       : null;
 
     let svgSize = Math.ceil(size + padding)
+    // the glow is a blurred copy of the arc, inside the Svg (a layer shadow on a transparent Svg is drawn offscreen):
+    // the Svg grows by glowMargin on each side, so the blur isn't cut, and the negative margin keeps the layout
+    const hasGlow = shadowRadius > 0 && fill > 0;
+    const glowMargin = hasGlow ? Math.ceil(shadowRadius * 2) : 0;
+    const glowSize = svgSize + glowMargin * 2;
+    // the arc's coordinates: moved by the glow margin, rotated around the center
+    const arc = (content) => (
+      <G transform={`translate(${glowMargin}, ${glowMargin})`}>
+        <G rotation={rotation} originX={svgSize / 2} originY={svgSize / 2}>
+          {content}
+        </G>
+      </G>
+    );
     return (
       <View style={style}>
-        <Svg style={styles(shadowColor, shadowRadius).shadow} width={svgSize} height={svgSize}>
-          <G rotation={rotation} originX={(svgSize) / 2} originY={(svgSize) / 2}>
-            {backgroundColor && (
-              <Path
-                d={backgroundPath}
-                stroke={backgroundColor}
-                strokeWidth={backgroundWidth || width}
-                strokeLinecap={lineCap}
-                strokeDasharray={strokeDasharrayBackground}
-                fill="transparent"
-              />
-            )}
+        <Svg style={styles(glowMargin).svg} width={glowSize} height={glowSize}>
+          {hasGlow && (
+            <Defs>
+              <Filter id="glow" filterUnits="userSpaceOnUse" x={0} y={0} width={glowSize} height={glowSize}>
+                <FeGaussianBlur stdDeviation={shadowRadius} />
+              </Filter>
+            </Defs>
+          )}
+          {arc(backgroundColor && (
+            <Path
+              d={backgroundPath}
+              stroke={backgroundColor}
+              strokeWidth={backgroundWidth || width}
+              strokeLinecap={lineCap}
+              strokeDasharray={strokeDasharrayBackground}
+              fill="transparent"
+            />
+          ))}
+          {/* the filter is on an untransformed group: its region is in the Svg's own coordinates (the arc's are rotated) */}
+          {hasGlow && (
+            <G filter="url(#glow)">
+              {arc(
+                <Path
+                  d={circlePath}
+                  stroke={shadowColor}
+                  strokeOpacity={0.5}
+                  strokeWidth={width}
+                  strokeLinecap={fillLineCap}
+                  fill="transparent"
+                />
+              )}
+            </G>
+          )}
+          {arc(<>
             {fill > 0 && (
               <Path
                 d={circlePath}
@@ -126,7 +161,7 @@ export default class CircularProgress extends React.PureComponent {
               />
             )}
             {cap}
-          </G>
+          </>)}
         </Svg>
         {children && <View style={localChildrenContainerStyle}>{children(fill)}</View>}
       </View>
@@ -168,11 +203,8 @@ CircularProgress.defaultProps = {
   dashedTint: { width: 0, gap: 0 },
 };
 
-const styles = (shadowColor, shadowRadius) => StyleSheet.create({
-  shadow: {
-    shadowOffset: {width: 0, height: 0},
-    shadowColor: shadowColor,
-    shadowOpacity: 0.5,
-    shadowRadius: shadowRadius,
+const styles = (glowMargin) => StyleSheet.create({
+  svg: {
+    margin: -glowMargin,
   },
 });
